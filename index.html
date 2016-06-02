@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>kiss.io latency chart</title>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="http://smoothiecharts.org/smoothie.js"></script>
+  </head>
+
+  <body>
+    <h1><a href="http://github.com/amit3vr/kiss.io">kiss.io</a> latency echo graph</h1>
+    <canvas id="latencyChart" width="400" height="100"></canvas>
+    <script>
+      var kiss = io('/');
+      var smoothie = new SmoothieChart();
+
+      // Data
+      var latency = new TimeSeries();
+
+      kiss.on('Pong', function(msLatency)
+      {
+        latency.append(Date.now(), msLatency);
+      });
+
+      kiss.on('connect', function()
+      {
+        setInterval(function()
+        {
+          kiss.emit('Ping', Date.now());
+        }, 1);
+      });
+
+      // Add to SmoothieChart
+      smoothie.addTimeSeries(latency);
+      smoothie.streamTo(document.getElementById("latencyChart"), 1000);
+    </script>
+
+    <p>
+      <h3>Credits: github for hosting, smoothie for real-time chart library</h3>
+    </p>
+  </body>
+</html>
